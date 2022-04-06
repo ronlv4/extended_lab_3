@@ -45,13 +45,16 @@ void mergeSort(int *arr, int len)
     {
         return;
     }
-    int *left = slice(arr, 0, len / 2 + 1);
-    int *right = slice(arr, len / 2, len);
+    int mid = len / 2;
+    int *left = slice(arr, 0, mid);
+    int *right = slice(arr, mid, len);
 
-    mergeSort(left, len / 2 + 1);
-    mergeSort(right, len - (len / 2));
+    mergeSort(left, mid);
+    mergeSort(right, len - mid);
 
-    merge(arr, left, right, len / 2, len - (len / 2));
+    merge(arr, left, right, mid, len - mid);
+    free(left);
+    free(right);
 }
 
 int main(int argc, char **argv)
@@ -61,7 +64,7 @@ int main(int argc, char **argv)
     int *numbers = (int *)calloc(n, sizeof(int));
 
     printf("Original array:");
-    for (i = 0; i <= n; ++i)
+    for (i = 0; i < n; ++i)
     {
         printf(" %s", arr[i]);
         numbers[i] = atoi(arr[i]);
@@ -71,9 +74,10 @@ int main(int argc, char **argv)
     mergeSort(numbers, n);
 
     printf("Sorted array:");
-    for (i = 0; i <= n; ++i)
+    for (i = 0; i < n; ++i)
         printf(" %d", numbers[i]);
     printf("\n");
+    free(numbers);
 
     return 0;
 }
