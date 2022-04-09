@@ -1,13 +1,12 @@
-target: all
-
 all: main
 
-main: readVirus.o
-	gcc -m32 -g -o main readVirus.o
+main: utils.h readVirus.o printVirus.o
+	gcc -g -m32 -Wall -o main utils.h readVirus.o printVirus.o main.c
 
-
-readVirus.o: readVirus.c
-	gcc -m32 -g -o readVirus readVirus.c
+readVirus.o: utils.h readVirus.c
+	gcc -g -m32 -nostartfiles -Wall -o readVirus.o -e readVirus utils.h readVirus.c
+printVirus.o: utils.h printVirus.c
+	gcc -g -m32 -nostartfiles -Wall -o printVirus.o -e printVirus printVirus.c utils.h
 
 clean:
-	rm *.o readVirus
+	rm -f *.o main
