@@ -44,7 +44,7 @@ void printVirus(virus* vir, FILE* output)
 	fprintf(output, "Virus name: %s\n", vir->virusName);
 	fprintf(output, "Virus size: %d\n", vir->sigSize);
 	fprintf(output, "signature:\n%s", vir->sig);
-	PrintHex(vir->sig, vir->sigSize);
+	printHex(vir->sig, vir->sigSize);
 	free(vir->sig);
 }
 
@@ -88,25 +88,25 @@ void print_signatures()
     
 }
 
-void validate_input(int input, struct fun_desc *menu[])
+void validate_input(int input, char* menu[], int length)
 {
-	if (input >= 0 && input <= sizeof(*menu) / sizeof(menu[0]))
+	if (input >= 0 && input <= length - 1)
 	{
-		printf("Within bounds");
+		printf("Within bounds\n");
 	}
 	else
 	{
-		printf("Not within bounds");
+		printf("Not within bounds\n");
 		exit(1);
 	}
 }
 
-void print_menu(char* menu[])
+void print_menu(char* menu[], size_t length)
 {
 	int i;
-	for (i = 0; i < sizeof(*menu) / sizeof(menu[0]); i++)
+	for (i = 0; i < length; i++)
 	{
-		printf("%d) %s\n", i, (*menu)[i]);
+		printf("%d) %s\n", i, menu[i]);
 	}
 	printf("Option: ");
 }
@@ -119,28 +119,31 @@ void detect_virus(char *buffer, unsigned int size, link *virus_list)
 
 int main(int argc, char **argv)
 {
-	int input;
-    char* signatures, buffer;
-	FILE* input;
+	int user_input;
+    char* signatures;
+    char* buffer = malloc(1 << 10);
+	FILE* input = stdin;
 	FILE* output = stdout;
-	link* virus_list = malloc(sizeof(*link));
+	link* virus_list = malloc(sizeof(link));
     char* menu[] = {"Load signatures", "Print signatures", "Detect viruses", "Quit"};
-	do
+    int length = sizeof(menu) / sizeof(menu[0]);
+    do
 	{
-		print_menu(menu);
-		input = fgetc(stdin);
-		validate_input(input, menu);
-        switch (input)
+		print_menu(menu, length);
+        user_input = fgetc(stdin) - '0';
+        fflush(stdin);
+		validate_input(user_input, menu, length);
+        switch (user_input)
         {
-        case 1:
-            load_signatures(signatures, input);
+        case 0:
+//            load_signatures(signatures, user_input);
             break;
         
-        case 2:
+        case 1:
             print_signatures(signatures);
         
-        case 3:
-            detect_virus
+        case 2:
+            break;
 
         default:
 			exit(0);

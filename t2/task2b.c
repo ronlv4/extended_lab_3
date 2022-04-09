@@ -44,7 +44,7 @@ void printVirus(virus* vir, FILE* output)
 	fprintf(output, "Virus name: %s\n", vir->virusName);
 	fprintf(output, "Virus size: %d\n", vir->sigSize);
 	fprintf(output, "signature:\n%s", vir->sig);
-	PrintHex(vir->sig, vir->sigSize);
+	printHex(vir->sig, vir->sigSize);
 	free(vir->sig);
 }
 
@@ -116,32 +116,37 @@ void detect_virus(char *buffer, unsigned int size, link *virus_list)
 
 }
 
+void kill_virus(char *fileName, int signatureOffset, int signatureSize)
+{
+    printf("Please enter the starting byte location in the suspected file: \n");
+}
+
+
 
 int main(int argc, char **argv)
 {
-	int input;
+	int user_input;
     char* signatures, buffer;
 	FILE* input;
 	FILE* output = stdout;
-	link* virus_list = malloc(sizeof(*link));
-    char* menu[] = {"Load signatures", "Print signatures", "Detect viruses", "Quit"};
+	link* virus_list = malloc(sizeof(link));
+    char* menu[] = {"Load signatures", "Print signatures", "Detect viruses", "Fix file", "Quit"};
 	do
 	{
 		print_menu(menu);
-		input = fgetc(stdin);
-		validate_input(input, menu);
-        switch (input)
+        user_input = fgetc(stdin);
+		validate_input(user_input, menu);
+        switch (user_input)
         {
         case 1:
-            load_signatures(signatures, input);
+            load_signatures(signatures, user_input);
             break;
         
         case 2:
             print_signatures(signatures);
         
         case 3:
-            detect_virus
-
+            detect_virus(buffer, 3, virus_list);
         default:
 			exit(0);
         }
