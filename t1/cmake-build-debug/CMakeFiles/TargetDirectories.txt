@@ -1,3 +1,0 @@
-C:/Users/ronlv/CLionProjects/Lab3/t1/cmake-build-debug/CMakeFiles/t1.dir
-C:/Users/ronlv/CLionProjects/Lab3/t1/cmake-build-debug/CMakeFiles/edit_cache.dir
-C:/Users/ronlv/CLionProjects/Lab3/t1/cmake-build-debug/CMakeFiles/rebuild_cache.dir

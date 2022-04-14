@@ -23,6 +23,12 @@ struct fun_desc
 	char (*fun)(char);
 };
 
+void flushInput()
+{
+	char ch;
+	while ((ch = getchar()) != '\n' && ch != EOF);
+}
+
 char *map(char *array, int array_length, char (*f)(char))
 {
 	char *mapped_array = (char *)(malloc(array_length * sizeof(char)));
@@ -99,7 +105,7 @@ link *load_signatures()
 	char *file_name = malloc(100);
 	link *virus_list = NULL;
 	// scanf("\n%s", file_name);
-	// while ((ch = getchar()) != '\n' && ch != EOF);
+	// flushInput()
 	file_name = "signatures";
 	sig_file = fopen(file_name, "r");
 	while (!feof(sig_file))
@@ -167,11 +173,10 @@ void detect_virus(char *buffer, unsigned int size, link *virus_list)
 
 int loadFileIntoBuffer(char *buffer)
 {
-	char ch;
 	char *file_path = malloc(100);
 	printf("Please enter a file path: \n");
 	scanf("\n%s", file_path);
-	while ((ch = getchar()) != '\n' && ch != EOF);
+	flushInput();
 	FILE *f = fopen(file_path, "r");
 	fseek(f, 0, SEEK_END);
 	int fsize = ftell(f);
@@ -187,7 +192,7 @@ void kill_virus(char *fileName, int signatureOffset, int signatureSize)
 {
 	FILE *virus_file = fopen(fileName, "w+");
 	fseek(virus_file, signatureOffset, SEEK_SET);
-	fwrite('\0', 1, signatureSize, virus_file);
+	fwrite("\x90", 1, signatureSize, virus_file);
 }
 
 int main(int argc, char **argv)
@@ -203,9 +208,7 @@ int main(int argc, char **argv)
 	{
 		print_menu(menu, length);
 		user_input = fgetc(stdin) - '0';
-		char ch;
-		while ((ch = getchar()) != '\n' && ch != EOF)
-			;
+		flushInput();
 		validate_input(user_input, menu, length);
 		switch (user_input)
 		{
@@ -227,11 +230,13 @@ int main(int argc, char **argv)
 			break;
 
 		case 3:
-		scanf("please enter the starting byte location of the suspected file: %d\n", sig_offset);
-		scanf("please enter the signature size: %d\n", sig_size);
+		printf("please enter the starting byte location of the suspected file:\n");
+		scanf("%d", &sig_offset);
+		flushInput();
+		printf("please enter the signature size:\n");
+		scanf("%d", &sig_size);
+		flushInput();
 		kill_virus(file_name, sig_offset, sig_size);
-
-
 
 		default:
 			list_free(virus_list);
