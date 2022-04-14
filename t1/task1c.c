@@ -163,29 +163,41 @@ void detect_virus(char *buffer, unsigned int size, link *virus_list)
 
 	for (size_t i = 0; i < fsize; i++)
 	{
-		printf("%X ",buffer[i]);
+		printf("%02X ",buffer[i] & 0xff);
 	}
+
+	printf("fsize is: %d\n",fsize);
 	
 
 	link *list_iter = virus_list;
-	while (list_iter != NULL)
+	while (list_iter!=NULL)
 	{
-		printf("comparing with virus %s\n", list_iter->vir->virusName);
-		if (memcmp(buffer, list_iter->vir->sig, size) == 0)
+		for(int i =0; i<fsize - list_iter->vir->sigSize;i++) 
 		{
+		if(memcmp(list_iter->vir->sig,buffer[i],list_iter->vir->sigSize)){
 			printVirus(list_iter->vir,stdout);
+			break;
+			}
 		}
-		list_iter = list_iter->nextVirus;
+		list_iter= list_iter->nextVirus;
 	}
+	// {
+	// 	printf("comparing with virus %s\n", list_iter->vir->virusName);
+	// 	if (memcmp(buffer, list_iter->vir->sig, size) == 0)
+	// 	{
+	// 		printVirus(list_iter->vir,stdout);
+	// 	}
+	// 	list_iter = list_iter->nextVirus;
+	// }
+
+	// link* cur =virus_list;
 	
 }
 
+
+
 int main(int argc, char **argv)
 {
-	char* string = "Hello 01 02 03 04 05";
-	FILE *fp = fopen("testVirus", "w");
-	fwrite(string, 1, 20, fp);
-	exit(0);
 	int user_input;
 	char *buffer = malloc(1 << 10);
 	link *virus_list = NULL;
