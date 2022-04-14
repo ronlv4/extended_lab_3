@@ -146,60 +146,48 @@ void print_menu(char *menu[], size_t length)
 
 void detect_virus(char *buffer, unsigned int size, link *virus_list)
 {
+	int i;
+	link *list_iter = virus_list;
+	while (list_iter != NULL)
+	{
+		for (i = 0; i < (int)(size - list_iter->vir->sigSize); i++)
+		{
+			if (memcmp(list_iter->vir->sig, buffer + i, list_iter->vir->sigSize) == 0)
+			{
+				printf("virus detected: \n");
+				printf("starting byte: %d\n", i);
+				printf("virus name: %s\n", list_iter->vir->virusName);
+				printf("size of the virus signature %d\n\n", list_iter->vir->sigSize);
+				break;
+			}
+		}
+		list_iter = list_iter->nextVirus;
+	}
+}
+
+int loadFileIntoBuffer(char *buffer)
+{
 	char ch;
 	char *file_path = malloc(100);
 	printf("Please enter a file path: \n");
 	scanf("\n%s", file_path);
-	while ((ch = getchar()) != '\n' && ch != EOF)
-		;
+	while ((ch = getchar()) != '\n' && ch != EOF);
 	FILE *f = fopen(file_path, "r");
 	fseek(f, 0, SEEK_END);
-	long fsize = ftell(f);
+	int fsize = ftell(f);
 	fseek(f, 0, SEEK_SET);
 
 	fread(buffer, fsize, 1, f);
 	fclose(f);
 	buffer[fsize] = 0;
-
-	for (size_t i = 0; i < fsize; i++)
-	{
-		printf("%02X ",buffer[i] & 0xff);
-	}
-
-	printf("fsize is: %d\n",fsize);
-	
-
-	link *list_iter = virus_list;
-	while (list_iter!=NULL)
-	{
-		for(int i =0; i<fsize - list_iter->vir->sigSize;i++) 
-		{
-		if(memcmp(list_iter->vir->sig,buffer[i],list_iter->vir->sigSize)){
-			printVirus(list_iter->vir,stdout);
-			break;
-			}
-		}
-		list_iter= list_iter->nextVirus;
-	}
-	// {
-	// 	printf("comparing with virus %s\n", list_iter->vir->virusName);
-	// 	if (memcmp(buffer, list_iter->vir->sig, size) == 0)
-	// 	{
-	// 		printVirus(list_iter->vir,stdout);
-	// 	}
-	// 	list_iter = list_iter->nextVirus;
-	// }
-
-	// link* cur =virus_list;
-	
+	return fsize;
 }
-
-
 
 int main(int argc, char **argv)
 {
-	int user_input;
-	char *buffer = malloc(1 << 10);
+	int user_input, file_size;
+	int size = 1 << 10;
+	char *buffer = malloc(size);
 	link *virus_list = NULL;
 	char *menu[] = {"Load signatures", "Print signatures", "Detect viruses", "Quit"};
 	int length = sizeof(menu) / sizeof(menu[0]);
@@ -222,7 +210,12 @@ int main(int argc, char **argv)
 			break;
 
 		case 2:
-			detect_virus(buffer, 5, virus_list);
+			file_size = loadFileIntoBuffer(buffer);
+			if (file_size < size)
+			{
+				size = file_size;
+			}
+			detect_virus(buffer, size, virus_list);
 			break;
 
 		default:

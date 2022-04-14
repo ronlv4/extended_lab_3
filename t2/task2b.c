@@ -146,46 +146,58 @@ void print_menu(char *menu[], size_t length)
 
 void detect_virus(char *buffer, unsigned int size, link *virus_list)
 {
+	int i;
+	link *list_iter = virus_list;
+	while (list_iter != NULL)
+	{
+		for (i = 0; i < (int)(size - list_iter->vir->sigSize); i++)
+		{
+			if (memcmp(list_iter->vir->sig, buffer + i, list_iter->vir->sigSize) == 0)
+			{
+				printf("virus detected: \n");
+				printf("starting byte: %d\n", i);
+				printf("virus name: %s\n", list_iter->vir->virusName);
+				printf("size of the virus signature %d\n\n", list_iter->vir->sigSize);
+				break;
+			}
+		}
+		list_iter = list_iter->nextVirus;
+	}
+}
+
+int loadFileIntoBuffer(char *buffer)
+{
 	char ch;
 	char *file_path = malloc(100);
 	printf("Please enter a file path: \n");
 	scanf("\n%s", file_path);
-	while ((ch = getchar()) != '\n' && ch != EOF)
-		;
+	while ((ch = getchar()) != '\n' && ch != EOF);
 	FILE *f = fopen(file_path, "r");
 	fseek(f, 0, SEEK_END);
-	long fsize = ftell(f);
+	int fsize = ftell(f);
 	fseek(f, 0, SEEK_SET);
 
 	fread(buffer, fsize, 1, f);
 	fclose(f);
 	buffer[fsize] = 0;
+	return fsize;
+}
 
-	for (size_t i = 0; i < fsize; i++)
-	{
-		printf("%X ",buffer[i]);
-	}
-	
-
-	link *list_iter = virus_list;
-	while (list_iter != NULL)
-	{
-		printf("comparing with virus %s\n", list_iter->vir->virusName);
-		if (memcmp(buffer, list_iter->vir->sig, size) == 0)
-		{
-			printVirus(list_iter->vir,stdout);
-		}
-		list_iter = list_iter->nextVirus;
-	}
-	
+void kill_virus(char *fileName, int signatureOffset, int signatureSize)
+{
+	FILE *virus_file = fopen(fileName, "w+");
+	fseek(virus_file, signatureOffset, SEEK_SET);
+	fwrite('\0', 1, signatureSize, virus_file);
 }
 
 int main(int argc, char **argv)
 {
-	int user_input;
-	char *buffer = malloc(1 << 10);
+	int user_input, file_size, sig_size, sig_offset;
+	int size = 1 << 10;
+	char *file_name = "infected";
+	char *buffer = malloc(size);
 	link *virus_list = NULL;
-	char *menu[] = {"Load signatures", "Print signatures", "Detect viruses", "Quit"};
+	char *menu[] = {"Load signatures", "Print signatures", "Detect viruses", "Fix file", "Quit"};
 	int length = sizeof(menu) / sizeof(menu[0]);
 	do
 	{
@@ -206,8 +218,20 @@ int main(int argc, char **argv)
 			break;
 
 		case 2:
-			detect_virus(buffer, 5, virus_list);
+			file_size = loadFileIntoBuffer(buffer);
+			if (file_size < size)
+			{
+				size = file_size;
+			}
+			detect_virus(buffer, size, virus_list);
 			break;
+
+		case 3:
+		scanf("please enter the starting byte location of the suspected file: %d\n", sig_offset);
+		scanf("please enter the signature size: %d\n", sig_size);
+		kill_virus(file_name, sig_offset, sig_size);
+
+
 
 		default:
 			list_free(virus_list);
